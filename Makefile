@@ -1,11 +1,4 @@
-
-	# check if user is root
-	user = $(shell whoami)
-	ifeq ($(user),root)
-	INSTALL_DIR = /usr/lib/lv2
-	else 
-	INSTALL_DIR = ~/.lv2
-	endif
+	INSTALL_DIR ?= /usr/local/lib/lv2
 
 	ifneq (cat /proc/cpuinfo | grep sse2 >/dev/null,)
 	SSE_CFLAGS = -msse2 -mfpmath=sse
@@ -15,12 +8,17 @@
 	SSE_CFLAGS = ""
 	endif
 
+	OPTIMIZATION_FLAGS?=
+	ifneq ($(NOOPT),true)
+		OPTIMIZATION_FLAGS += $(SSE_CLFAGS)
+	endif
+
 	# set bundle name
 	NAME = gx_switchless_wah
 	BUNDLE = GxSwitchlessWah.lv2
 	VER = 0.1
 	# set compile flags
-	CXXFLAGS += -I. -fPIC -DPIC -O2 -Wall -funroll-loops -ffast-math -fomit-frame-pointer -fstrength-reduce $(SSE_CFLAGS)
+	CXXFLAGS += -I. -fPIC -DPIC -O2 -Wall -funroll-loops -ffast-math -fomit-frame-pointer -fstrength-reduce $(OPTIMIZATION_FLAGS)
 	LDFLAGS += -I. -shared -lm
 	# invoke build files
 	OBJECTS = $(NAME).cpp
